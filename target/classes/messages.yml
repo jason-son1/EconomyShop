@@ -1,0 +1,40 @@
+prefix: "&a[EconomyShop] &f"
+error:
+  no-permission: "&c권한이 없습니다."
+  no-console: "&c플레이어만 사용할 수 있습니다."
+  invalid-args: "&c잘못된 명령어입니다."
+  not-enough-money: "&c돈이 부족합니다. (필요: {price})"
+  inventory-full: "&c인벤토리가 가득 찼습니다."
+  item-not-found: "&c아이템을 찾을 수 없습니다."
+  limit-reached: "&c일일 구매 한도에 도달했습니다. ({current}/{max})"
+  requirements-not-met: "&c구매 요구사항을 충족하지 못했습니다:"
+  
+shop:
+  buy-success: "&a아이템을 &e{price}원&a에 구매했습니다."
+  sell-success: "&a아이템을 &e{price}원&a에 판매했습니다."
+  sell-fail-no-item: "&c인벤토리에 판매할 아이템이 없습니다."
+  sell-gui-title: "&8아이템 판매 (넣고 닫으세요)"
+  sell-gui-guide:
+    name: "&b&l판매 방법"
+    lore:
+      - "&7아이템을 넣고 인벤토리를 닫으면"
+      - "&7자동으로 판매됩니다."
+  returned-items: "&c판매할 수 없는 아이템 {count}종류를 돌려받았습니다."
+
+gui:
+  prev-page: "&e이전 페이지 ({page})"
+  next-page: "&e다음 페이지 ({page})"
+  current-page: "&f현재 페이지: &6{page}"
+  main-menu: "&7메인 메뉴로 이동"
+  item:
+    buy-action: "&f좌클릭: &a구매 (&e{price}&a)"
+    sell-action: "&f우클릭: &c판매 (&e{price}&c)"
+    stock: "&7* 현재 재고: &f{current} / {max}"
+    dynamic: "&7* 변동 가격 적용 중"
+    limit: "&7* 일일 구매 제한 있음"
+
+editor:
+  saved: "&a설정이 저장되었습니다."
+  deleted: "&c아이템이 삭제되었습니다."
+  mode-on: "&b에디터 모드가 활성화되었습니다. 상점 아이템을 우클릭하여 편집하세요."
+  mode-off: "&b에디터 모드가 비활성화되었습니다."

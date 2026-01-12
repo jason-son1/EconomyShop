@@ -1,0 +1,36 @@
+name: EconomyShop
+version: 1.0-SNAPSHOT
+main: me.antigravity.economyshop.EconomyShop
+api-version: 1.20
+description: Premium Grade Economy GUI Shop Plugin
+author: Antigravity
+depend: [Vault]
+softdepend: [Citizens, DiscordSRV, Oraxen, ItemsAdder]
+
+commands:
+  shop:
+    description: Open the main shop menu.
+    usage: /shop [section]
+  sellgui:
+    description: Open the sell GUI.
+    usage: /sellgui
+  sellall:
+    description: Sell all items in your inventory.
+    usage: /sellall
+    permission: economyshop.sellall
+  editshop:
+    description: Open the in-game shop editor.
+    usage: /editshop [additem|addsection|reload]
+    permission: economyshop.admin
+
+permissions:
+  economyshop.shop.all:
+    description: Allows access to all shop sections.
+    default: true
+  economyshop.sellall:
+    description: Allows use of the /sellall command.
+    default: op
+  economyshop.admin:
+    description: Allows access to administrative commands.
+    default: op
+

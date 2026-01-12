@@ -1,0 +1,21 @@
+# EconomyShop 기본 설정 파일
+
+# 경제 시스템 설정
+# 이용 가능한 옵션: Vault, PlayerPoints, EXP
+default-economy: "Vault"
+
+# 가격 변동 복구 설정
+# 동적 가격이 시간이 지남에 따라 기준 가격으로 복구됩니다.
+price-restoration-interval: 60  # 실행 주기 (분 단위)
+price-restoration-rate: 0.05    # 복구율 (5% = 0.05)
+
+# 데이터 저장 방식
+# 현재는 로컬 YAML 시스템만 지원 (추후 SQLite/MySQL 확장 가능)
+storage-type: "YAML"
+
+# 로깅 설정
+enable-transaction-logs: true
+discord-webhook-url: ""
+
+# 언어 설정
+language: "ko-KR"

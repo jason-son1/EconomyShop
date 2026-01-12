@@ -1,0 +1,22 @@
+# 상점 섹션(카테고리) 설정
+
+farming:
+  display-name: "&a농사 상점"
+  material: "WHEAT"
+  slot: 10
+  permission: "economyshop.shop.farming"
+  economy: "Vault"
+
+blocks:
+  display-name: "&7블록 상점"
+  material: "STONE"
+  slot: 12
+  permission: "economyshop.shop.blocks"
+  economy: "Vault"
+
+rares:
+  display-name: "&6희귀 아이템 상점"
+  material: "NETHER_STAR"
+  slot: 14
+  permission: "economyshop.shop.rares"
+  economy: "PlayerPoints"

@@ -1,0 +1,38 @@
+# 농사 상점 아이템 설정
+
+WHEAT:
+  material: "WHEAT"
+  buy: 10.0
+  sell: 2.0
+  slot: 10
+  dynamic-pricing: true
+  max-stock: 1000
+  min-price: 1.0
+  max-price: 50.0
+
+CARROT:
+  material: "CARROT"
+  buy: 15.0
+  sell: 3.0
+  slot: 11
+  dynamic-pricing: true
+  max-stock: 800
+  min-price: 2.0
+  max-price: 60.0
+
+POTATO:
+  material: "POTATO"
+  buy: 15.0
+  sell: 3.0
+  slot: 12
+  dynamic-pricing: true
+  max-stock: 800
+  min-price: 2.0
+  max-price: 60.0
+
+PUMPKIN:
+  material: "PUMPKIN"
+  buy: 30.0
+  sell: 10.0
+  slot: 13
+  dynamic-pricing: false
