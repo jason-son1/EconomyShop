@@ -119,6 +119,30 @@ public class GUIManager {
     }
 
     // ... (skip lines 121-150) ...
+    /**
+     * 네비게이션 바(이전/다음 페이지, 뒤로가기)를 렌더링합니다.
+     */
+    private void renderNavigationBar(ShopGUIHolder holder) {
+        Inventory inv = holder.getInventory();
+        int page = holder.getPage();
+        ShopSection section = holder.getSection();
+        int totalItems = section.getItems().size();
+        int maxPage = Math.max(0, (totalItems - 1) / ITEMS_PER_PAGE);
+
+        // 이전 페이지 (48번 슬롯)
+        if (page > 0) {
+            inv.setItem(48, createItem(Material.ARROW, "§a이전 페이지", "§7클릭하여 이전 페이지로 이동합니다."));
+        }
+
+        // 메인으로 돌아가기 (49번 슬롯)
+        inv.setItem(49, createItem(Material.BARRIER, "§c뒤로 가기", "§7메인 메뉴로 돌아갑니다."));
+
+        // 다음 페이지 (50번 슬롯)
+        if (page < maxPage) {
+            inv.setItem(50, createItem(Material.ARROW, "§a다음 페이지", "§7클릭하여 다음 페이지로 이동합니다."));
+        }
+    }
+
     private ItemStack createDisplayItem(ShopSection section, ShopItem shopItem) {
         if (shopItem.getCachedDisplayItem() != null) {
             return shopItem.getCachedDisplayItem().clone();

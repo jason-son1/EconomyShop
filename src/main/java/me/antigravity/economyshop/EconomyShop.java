@@ -57,6 +57,8 @@ public class EconomyShop extends JavaPlugin {
 
         // 매니저 초기화
         this.configManager = new ConfigManager(this);
+        this.configManager.loadConfigs(); // ConfigManager 먼저 로드 (LogManager 등에서 사용)
+
         this.logManager = new LogManager(this); // 로그는 최대한 빨리 초기화
         this.langManager = new LangManager(this); // ConfigManager 후, 다른 매니저 전
         this.economyManager = new EconomyManager(this);
@@ -68,7 +70,7 @@ public class EconomyShop extends JavaPlugin {
         this.sellGUIManager = new SellGUIManager(this);
 
         // 데이터 로드
-        this.configManager.loadConfigs();
+        // configManager.loadConfigs()는 위에서 이미 호출됨
         this.databaseManager.initialize(); // DB 연결
         this.shopManager.loadShops();
 
@@ -126,7 +128,9 @@ public class EconomyShop extends JavaPlugin {
     @Override
     public void onDisable() {
         // 필요 시 데이터 저장
-        this.shopManager.saveShops();
+        if (this.shopManager != null) {
+            this.shopManager.saveShops();
+        }
 
         // DB 연결 종료
         if (this.databaseManager != null) {
