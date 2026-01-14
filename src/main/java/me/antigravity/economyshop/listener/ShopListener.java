@@ -202,11 +202,33 @@ public class ShopListener implements Listener {
 
         double price = item.getCurrentBuyPrice();
 
+        // 거래 전 이벤트 발생
+        me.antigravity.economyshop.api.event.ShopPreTransactionEvent preEvent = new me.antigravity.economyshop.api.event.ShopPreTransactionEvent(
+                player, section, item,
+                me.antigravity.economyshop.api.event.ShopPreTransactionEvent.TransactionType.BUY,
+                1, price);
+        org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
+
+        // 이벤트가 취소된 경우
+        if (preEvent.isCancelled()) {
+            String cancelReason = preEvent.getCancelReason();
+            if (cancelReason != null && !cancelReason.isEmpty()) {
+                player.sendMessage(cancelReason);
+            }
+            return;
+        }
+
+        // 이벤트에서 변경된 가격 적용
+        price = preEvent.getPrice();
+        int amount = preEvent.getAmount();
+
         if (economy.has(player, price)) {
             if (economy.withdraw(player, price)) {
                 // 아이템 지급 및 잔여물 처리
+                org.bukkit.inventory.ItemStack itemToGive = item.getItemStack().clone();
+                itemToGive.setAmount(amount);
                 java.util.HashMap<Integer, org.bukkit.inventory.ItemStack> leftovers = player.getInventory()
-                        .addItem(item.getItemStack().clone());
+                        .addItem(itemToGive);
 
                 if (!leftovers.isEmpty()) {
                     for (org.bukkit.inventory.ItemStack leftover : leftovers.values()) {
@@ -219,20 +241,27 @@ public class ShopListener implements Listener {
 
                 // 재고 감소
                 if (item.isDynamicPricing() && item.getCurrentStock() > 0) {
-                    item.setCurrentStock(item.getCurrentStock() - 1);
+                    item.setCurrentStock(item.getCurrentStock() - amount);
                     // DB 업데이트
                     plugin.getDatabaseManager().saveDynamicPrice(item.getId(), item.getCurrentStock());
                 }
 
                 // 구매 기록 갱신
-                plugin.getLimitManager().recordPurchase(player.getUniqueId(), item.getId(), 1);
+                plugin.getLimitManager().recordPurchase(player.getUniqueId(), item.getId(), amount);
 
                 // 메시지 및 로그
                 String msg = plugin.getLangManager().getMessage("shop.buy-success")
                         .replace("{price}", economy.formatAmount(price));
                 me.antigravity.economyshop.util.MessageUtils.sendActionBar(player, msg); // Actionbar success
 
-                plugin.getLogManager().logTransaction(player.getName(), "BUY", item.getId(), 1, price);
+                plugin.getLogManager().logTransaction(player.getName(), "BUY", item.getId(), amount, price);
+
+                // 거래 후 이벤트 발생
+                me.antigravity.economyshop.api.event.ShopPostTransactionEvent postEvent = new me.antigravity.economyshop.api.event.ShopPostTransactionEvent(
+                        player, section, item,
+                        me.antigravity.economyshop.api.event.ShopPreTransactionEvent.TransactionType.BUY,
+                        amount, price);
+                org.bukkit.Bukkit.getPluginManager().callEvent(postEvent);
             } else {
                 player.sendMessage("§c거래 처리 중 오류가 발생했습니다. (출금 실패)");
             }
@@ -251,31 +280,80 @@ public class ShopListener implements Listener {
             return;
         }
 
-        if (player.getInventory().containsAtLeast(item.getItemStack(), 1)) {
-            player.getInventory().removeItem(item.getItemStack().clone());
+        // ItemRegistry를 사용하여 커스텀 아이템도 올바르게 비교
+        me.antigravity.economyshop.api.item.ItemRegistry itemRegistry = me.antigravity.economyshop.api.EconomyShopAPI
+                .getInstance().getItemRegistry();
 
-            double price = item.getCurrentSellPrice();
-            if (economy.deposit(player, price)) {
-                // 재고 증가
-                if (item.isDynamicPricing() && item.getCurrentStock() < item.getMaxStock()) {
-                    item.setCurrentStock(item.getCurrentStock() + 1);
-                    // DB 업데이트
-                    plugin.getDatabaseManager().saveDynamicPrice(item.getId(), item.getCurrentStock());
-                }
+        // 플레이어 인벤토리에서 일치하는 아이템 찾기
+        org.bukkit.inventory.ItemStack shopItemStack = item.getItemStack();
+        org.bukkit.inventory.ItemStack[] contents = player.getInventory().getContents();
+        int foundSlot = -1;
 
-                // 메시지 및 로그
-                String msg = plugin.getLangManager().getMessage("shop.sell-success")
-                        .replace("{price}", economy.formatAmount(price));
-                player.sendMessage(msg);
-
-                plugin.getLogManager().logTransaction(player.getName(), "SELL", item.getId(), 1, price);
-            } else {
-                // 트랜잭션 실패 시 아이템 반환
-                player.getInventory().addItem(item.getItemStack().clone());
-                player.sendMessage("§c거래 처리 중 오류가 발생했습니다.");
+        for (int i = 0; i < contents.length; i++) {
+            org.bukkit.inventory.ItemStack invItem = contents[i];
+            if (invItem != null && itemRegistry.matches(shopItemStack, invItem)) {
+                foundSlot = i;
+                break;
             }
-        } else {
+        }
+
+        if (foundSlot == -1) {
             player.sendMessage(plugin.getLangManager().getMessage("shop.sell-fail-no-item"));
+            return;
+        }
+
+        double price = item.getCurrentSellPrice();
+
+        // 거래 전 이벤트 발생
+        me.antigravity.economyshop.api.event.ShopPreTransactionEvent preEvent = new me.antigravity.economyshop.api.event.ShopPreTransactionEvent(
+                player, section, item,
+                me.antigravity.economyshop.api.event.ShopPreTransactionEvent.TransactionType.SELL,
+                1, price);
+        org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
+
+        // 이벤트가 취소된 경우
+        if (preEvent.isCancelled()) {
+            String cancelReason = preEvent.getCancelReason();
+            if (cancelReason != null && !cancelReason.isEmpty()) {
+                player.sendMessage(cancelReason);
+            }
+            return;
+        }
+
+        // 이벤트에서 변경된 가격 적용
+        price = preEvent.getPrice();
+        int amount = preEvent.getAmount();
+
+        // 아이템 제거
+        org.bukkit.inventory.ItemStack toRemove = item.getItemStack().clone();
+        toRemove.setAmount(amount);
+        player.getInventory().removeItem(toRemove);
+
+        if (economy.deposit(player, price)) {
+            // 재고 증가
+            if (item.isDynamicPricing() && item.getCurrentStock() < item.getMaxStock()) {
+                item.setCurrentStock(item.getCurrentStock() + amount);
+                // DB 업데이트
+                plugin.getDatabaseManager().saveDynamicPrice(item.getId(), item.getCurrentStock());
+            }
+
+            // 메시지 및 로그
+            String msg = plugin.getLangManager().getMessage("shop.sell-success")
+                    .replace("{price}", economy.formatAmount(price));
+            player.sendMessage(msg);
+
+            plugin.getLogManager().logTransaction(player.getName(), "SELL", item.getId(), amount, price);
+
+            // 거래 후 이벤트 발생
+            me.antigravity.economyshop.api.event.ShopPostTransactionEvent postEvent = new me.antigravity.economyshop.api.event.ShopPostTransactionEvent(
+                    player, section, item,
+                    me.antigravity.economyshop.api.event.ShopPreTransactionEvent.TransactionType.SELL,
+                    amount, price);
+            org.bukkit.Bukkit.getPluginManager().callEvent(postEvent);
+        } else {
+            // 트랜잭션 실패 시 아이템 반환
+            player.getInventory().addItem(toRemove);
+            player.sendMessage("§c거래 처리 중 오류가 발생했습니다.");
         }
     }
 

@@ -1,6 +1,9 @@
 package me.antigravity.economyshop;
 
 import lombok.Getter;
+import me.antigravity.economyshop.api.EconomyShopAPI;
+import me.antigravity.economyshop.api.EconomyShopAPIImpl;
+import me.antigravity.economyshop.api.EconomyShopAPIProvider;
 import me.antigravity.economyshop.command.EditShopCommand;
 import me.antigravity.economyshop.command.ShopCommand;
 import me.antigravity.economyshop.listener.NPCListener;
@@ -47,6 +50,10 @@ public class EconomyShop extends JavaPlugin {
     @Getter
     private me.antigravity.economyshop.hook.ItemsAdderHook itemsAdderHook;
 
+    // API 인스턴스
+    @Getter
+    private EconomyShopAPI api;
+
     @Override
     public void onEnable() {
         instance = this;
@@ -73,6 +80,11 @@ public class EconomyShop extends JavaPlugin {
         // configManager.loadConfigs()는 위에서 이미 호출됨
         this.databaseManager.initialize(); // DB 연결
         this.shopManager.loadShops();
+
+        // API 초기화 및 등록
+        this.api = new EconomyShopAPIImpl(this);
+        EconomyShopAPIProvider.register(this.api);
+        getLogger().info("EconomyShop API가 등록되었습니다. 버전: " + api.getVersion());
 
         // 명령어 및 리스너 등록
         ShopCommand shopCommand = new ShopCommand(this);
@@ -127,6 +139,9 @@ public class EconomyShop extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // API 등록 해제
+        EconomyShopAPIProvider.unregister();
+
         // 필요 시 데이터 저장
         if (this.shopManager != null) {
             this.shopManager.saveShops();

@@ -4,6 +4,11 @@
 # 이용 가능한 옵션: Vault, PlayerPoints, EXP
 default-economy: "Vault"
 
+# 전체 동적 경제 시스템 활성화 여부
+# true: 동적 경제 사용 (섹션/아이템 설정에 따름)
+# false: 모든 상점에서 동적 경제 비활성화 (고정 가격 사용)
+dynamic-pricing-enabled: true
+
 # 가격 변동 복구 설정
 # 동적 가격이 시간이 지남에 따라 기준 가격으로 복구됩니다.
 price-restoration-interval: 60  # 실행 주기 (분 단위)

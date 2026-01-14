@@ -15,6 +15,7 @@ public class ShopSection {
     private int slot;
     private String permission;
     private String economy; // e.g., "Vault", "PlayerPoints"
+    private boolean dynamicPricing; // 이 섹션의 동적 경제 활성화 여부
     private List<ShopItem> items;
 
     // Async I/O Support

@@ -54,6 +54,19 @@ public class ConfigManager {
         this.sectionsConfig = YamlConfiguration.loadConfiguration(sectionsFile);
     }
 
+    /**
+     * sections.yml 파일을 저장합니다.
+     */
+    public void saveSectionsConfig() {
+        if (sectionsConfig != null && sectionsFile != null) {
+            try {
+                sectionsConfig.save(sectionsFile);
+            } catch (IOException e) {
+                plugin.getLogger().severe("sections.yml 저장 실패: " + e.getMessage());
+            }
+        }
+    }
+
     public FileConfiguration getConfig() {
         return config;
     }
@@ -64,5 +77,15 @@ public class ConfigManager {
 
     public FileConfiguration getMainConfig() {
         return config;
+    }
+
+    /**
+     * 전체 동적 경제 시스템 활성화 여부를 반환합니다.
+     * config.yml의 'dynamic-pricing-enabled' 값을 확인합니다.
+     * 
+     * @return 활성화 여부 (기본값: true)
+     */
+    public boolean isGlobalDynamicPricingEnabled() {
+        return config.getBoolean("dynamic-pricing-enabled", true);
     }
 }

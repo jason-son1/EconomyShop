@@ -41,6 +41,7 @@ public class ShopManager {
                     .slot(sectionData.getInt("slot", 0))
                     .permission(sectionData.getString("permission"))
                     .economy(sectionData.getString("economy", "Vault"))
+                    .dynamicPricing(sectionData.getBoolean("dynamic-pricing", true)) // 섹션별 동적 경제 설정 로드 (기본값: true)
                     .items(new ArrayList<>())
                     .build();
 
@@ -76,6 +77,16 @@ public class ShopManager {
                 slot = findNextEmptySlot(section);
             }
 
+            // 전역 동적 경제 설정 확인
+            boolean globalDynamic = plugin.getConfigManager().isGlobalDynamicPricingEnabled();
+            // 섹션 동적 경제 설정 확인
+            boolean sectionDynamic = section.isDynamicPricing();
+            // 아이템 동적 경제 설정 확인
+            boolean itemDynamic = itemData.getBoolean("dynamic-pricing", false);
+
+            // 최종 동적 경제 활성화 여부 결정 (전역 AND 섹션 AND 아이템)
+            boolean finalDynamic = globalDynamic && sectionDynamic && itemDynamic;
+
             // Lazy Loading 적용: itemStackLoader 사용, items.getId() 대신 key 사용 (이미 key임)
             ShopItem item = ShopItem.builder()
                     .id(key)
@@ -83,7 +94,7 @@ public class ShopManager {
                     .buyPrice(itemData.getDouble("buy", 0.0))
                     .sellPrice(itemData.getDouble("sell", 0.0))
                     .slot(slot)
-                    .dynamicPricing(itemData.getBoolean("dynamic-pricing", false))
+                    .dynamicPricing(finalDynamic) // 최종 계산된 설정 적용
                     .maxStock(itemData.getLong("max-stock", 1000L))
                     .currentStock(itemData.getLong("max-stock", 1000L)) // 초기 재고는 최대치
                     .minPrice(itemData.getDouble("min-price", 0.0))
@@ -91,7 +102,7 @@ public class ShopManager {
                     .build();
 
             // DB에서 현재 재고 로드 (동적 가격인 경우)
-            if (itemData.getBoolean("dynamic-pricing", false)) {
+            if (finalDynamic) {
                 long dbStock = plugin.getDatabaseManager().loadDynamicStock(key, item.getMaxStock());
                 item.setCurrentStock(dbStock);
             }

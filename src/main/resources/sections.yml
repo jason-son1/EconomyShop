@@ -6,6 +6,9 @@ farming:
   slot: 10
   permission: "economyshop.shop.farming"
   economy: "Vault"
+  # 이 섹션의 동적 경제 활성화 여부 (기본값: true)
+  # false로 설정하면 이 섹션의 모든 아이템은 고정 가격이 됩니다.
+  dynamic-pricing: false
 
 blocks:
   display-name: "&7블록 상점"
